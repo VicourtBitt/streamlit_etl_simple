@@ -2,7 +2,7 @@ import streamlit as st
 from components.router import homepage, dataframe_page, improved_page
 
 st.set_page_config(
-    page_title="Streamlit App",
+    page_title="Home | VBittDashboard",
     page_icon=":bar_chart:",
     layout="wide",
     initial_sidebar_state="expanded",
