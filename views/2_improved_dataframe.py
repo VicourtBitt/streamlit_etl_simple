@@ -1,7 +1,9 @@
 import streamlit as st
-from utils.data_utils import get_student_dataframe, gather_data, display_dataframe, get_student_metrics_dataframe
-from plotly.express import pie, bar
-import seaborn as sb
+from utils.data_utils import (
+    get_student_dataframe, get_metric_correlation_quadrant, display_dataframe, get_student_metrics_dataframe
+)
+from plotly.express import pie, bar, density_heatmap
+from plotly.graph_objects import Figure
 
 def main():
     st.set_page_config(
@@ -51,5 +53,17 @@ def main():
             with st.container(border=True):
                 st.subheader("Distribuição de Horas de Sono")
                 st.plotly_chart(pie(sleep_hours, names='Sleep Duration', values='Count', title='Distribuição de Horas de Sono'), use_container_width=True)
+
+    st.divider()
+    st.subheader("Quadrante de Correlação de Métricas")
+    st.markdown("""
+        Abaixo está o quadrante de correlação das métricas dos estudantes, que mostra a relação entre CGPA, satisfação com os estudos, horas de sono, hábitos alimentares e depressão
+        Essa análise é importante para entender como esses fatores estão interligados e como podem afetar a saúde mental dos estudantes.
+    """)
+    quadrant = get_metric_correlation_quadrant(get_student_dataframe())
+    if quadrant is not None and not quadrant.empty:
+        st.dataframe(quadrant, use_container_width=True)
+    else:
+        st.warning("No data available to display.")
 
 main()
