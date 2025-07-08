@@ -1,53 +1,55 @@
 import streamlit as st
-from utils.data_utils import with_empty_values, display_dataframe, gather_data, without_empty_values
+from utils.data_utils import get_student_dataframe, gather_data, display_dataframe, get_student_metrics_dataframe
+from plotly.express import pie, bar
+import seaborn as sb
 
 def main():
-    st.title("Engenharia de Dados")
+    st.set_page_config(
+        page_title="Engenharia de Dados | VBittDashboard",
+        page_icon=":bar_chart:",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+    st.title("Engenharia de Dados com Streamlit")
     st.markdown("""
-        Nesta seção, vamos explorar como melhorar a visualização de dados
-        e realizar limpeza de dados para uma melhor análise.
+        Abaixo seguem duas tabelas, das quais explicaremos o motivo de estarem separadas e quais foram os critérios utilizados para essa separação.
     """)
 
     st.divider()
-
-    st.subheader("Dados com Valores Vazios")
-    st.markdown("""        Abaixo estão os dados que contêm valores vazios. Vamos identificar
-        esses valores e discutir como podemos melhorá-los.
+    st.subheader("Tabela de Dados de Estudantes")
+    st.markdown("""
+        Ao avaliarmos estudantes, desconsideraremos as informações métricas relacionadas a profissionais somente nos casos de os profissionais não possuírem horas de estudo.
     """)
-    df = with_empty_values(gather_data())
+    df = get_student_dataframe()
     if df is not None and not df.empty:
         display_dataframe(df)
     else:
         st.warning("No data available to display.")
 
-    st.subheader("Análise Rápida")
+    st.divider()
+    st.subheader("Tabela de Métricas de Estudantes")
     st.markdown("""
-        Podemos notar que, existem 9 linhas com informações faltantes, sendo uma linha
-        inteira com valores nulos e uma com valores faltantes em relaçãao a coluna `sex`.
-        Podemos remover essas linhas ou preencher os valores faltantes com a média, mediana
-        ou moda, dependendo do contexto dos dados.
+        A tabela abaixo contém métricas de estudantes, como CGPA, hábitos alimentares e horas de sono.
+        Essas métricas são importantes para entender o bem-estar dos estudantes e como isso pode afetar sua saúde mental.
+        As métricas foram separadas da tabela principal para facilitar a análise e visualização dos dados.
     """)
 
-    st.divider()
-    st.subheader("Processo de Limpeza de Dados")
-    st.markdown("""
-        Podemos facilmente de maneira programática remover esses valores utilizando o Pandas.
-        Abaixo está um exemplo de como podemos fazer isso:
-    """)
-    st.code("""
-        df = gather_data()
-        df = df.dropna()  # Remove todas as linhas com valores nulos""", language='python') 
-    
-    st.divider()
-    st.subheader("Dados sem Valores Vazios")
-    st.markdown("""
-        Abaixo estão os dados após a remoção dos valores vazios. Agora podemos
-        realizar análises mais precisas e significativas.
-    """)
-    df = without_empty_values(gather_data())
-    if df is not None and not df.empty:
-        display_dataframe(df)
-    else:
-        st.warning("No data available to display.")
+    cgpa, dietary_habits, sleep_hours = get_student_metrics_dataframe(df)
+    with st.container():
+        cols = st.columns(3, gap="small")
+        with cols[0]:
+            with st.container(border=True):
+                st.subheader("Distribuição de CGPA")
+                st.plotly_chart(bar(cgpa, x='CGPA Range', y='Count', title='Distribuição de CGPA'), use_container_width=True)
+
+        with cols[1]:
+            with st.container(border=True):
+                st.subheader("Distribuição de Hábitos Alimentares")
+                st.plotly_chart(pie(dietary_habits, names='Dietary Habits', values='Count', title='Distribuição de Hábitos Alimentares'), use_container_width=True)
+
+        with cols[2]:
+            with st.container(border=True):
+                st.subheader("Distribuição de Horas de Sono")
+                st.plotly_chart(pie(sleep_hours, names='Sleep Duration', values='Count', title='Distribuição de Horas de Sono'), use_container_width=True)
 
 main()
