@@ -7,8 +7,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-st.sidebar.header("Navigation")
-st.sidebar.markdown("Use the navigation below to switch between pages.")
+st.title("Navegação entre Páginas com Streamlit")
+st.markdown("""
+    Este é um exemplo de como criar uma navegação entre páginas usando o Streamlit.
+    Você pode navegar entre as páginas clicando nos links abaixo.
+""")
 st.logo(image="assets/logo_dark.png", size="large")
 
 navigation = st.navigation({
