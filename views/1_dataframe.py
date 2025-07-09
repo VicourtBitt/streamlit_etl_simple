@@ -4,13 +4,13 @@ from utils.data_utils import gather_data, display_dataframe
 
 def main():
     st.set_page_config(
-        page_title="DataFrame | VBittDashboard",
+        page_title="Contexto | VBittDashboard",
         page_icon=":bar_chart:",
         layout="wide",
         initial_sidebar_state="expanded",
     )
 
-    st.title("Visualização de Dados com Streamlit")
+    st.title("Contexto dos Dados")
     st.markdown("""
         Abaixo está uma tabela de visualização de dados.
         Você pode interagir com a tabela, filtrando e ordenando os dados.
