@@ -9,12 +9,24 @@ homepage = st.Page(
 
 dataframe_page = st.Page(
     page="views/1_dataframe.py",
-    title="DataFrame Original",
+    title="Contexto dos Dados",
     icon="📊",
 )
 
-improved_page = st.Page(
-    page="views/2_improved_dataframe.py",
-    title="DataFrame Melhorado",
-    icon="🔧",
+students_page = st.Page(
+    page="views/2_students.py",
+    title="Estudantes",
+    icon="📈",
+)
+
+workers_page = st.Page(
+    page="views/3_workers.py",
+    title="Profissionais",
+    icon="👨‍💻",
+)
+
+treatment_page = st.Page(
+    page="views/4_treatment.py",
+    title="Tratamento de Dados",
+    icon="🛠️"
 )

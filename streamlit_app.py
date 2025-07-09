@@ -1,5 +1,5 @@
 import streamlit as st
-from components.router import homepage, dataframe_page, improved_page
+from components.router import homepage, dataframe_page, students_page, workers_page, treatment_page
 
 st.set_page_config(
     page_title="Home | VBittDashboard",
@@ -14,8 +14,9 @@ st.logo(image="assets/logo_dark.png", size="large")
 
 navigation = st.navigation({
     "Home": [homepage],
-    "DataFrame": [dataframe_page],
-    "Engenharia": [improved_page],
+    "Dados": [dataframe_page],
+    "Visualização": [students_page, workers_page],
+    "Tratamento de Dados": [treatment_page],
 })
 
 navigation.run()

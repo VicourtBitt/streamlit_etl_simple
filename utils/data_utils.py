@@ -51,22 +51,20 @@ def get_student_metrics_dataframe(df):
 
 def get_metric_correlation_quadrant(df):
     """ Get the correlation quadrant for the previous metric """
-    quadrant = df[df[['CGPA', 'Study Satisfaction', 'Sleep Duration', 'Dietary Habits', 'Depression']].notnull().all(axis=1)]
+    quadrant = df[df[['CGPA', 'Study Satisfaction', 'Sleep Duration', 'Dietary Habits', 'Depression', 'Have you ever had suicidal thoughts ?']].notnull().all(axis=1)].copy()
 
-    # If 7-8 hours, rate as 3, more than that rate as 2, less than 7 rate as 1 and less than 5 rate as 0
-    # the values appear as 7-8 hours, 5-6 hours, More than 8 hours, Less than 5 hours
     sleep_mapping = {
-        '7-8 hours': 3,
-        '5-6 hours': 2,
-        'More than 8 hours': 2,
-        'Less than 5 hours': 0
+        '7-8 hours': 1,
+        '5-6 hours': 0,
+        'More than 8 hours': -1,
+        'Less than 5 hours': -1
     }
     quadrant['Sleep Duration'] = quadrant['Sleep Duration'].map(sleep_mapping)
 
     dietary_mapping = {
-        'Healthy': 3,
-        'Moderate': 2,
-        'Unhealthy': 1
+        'Healthy': 1,
+        'Moderate': 0,
+        'Unhealthy': -1
     }
     quadrant['Dietary Habits'] = quadrant['Dietary Habits'].map(dietary_mapping)
 
@@ -76,7 +74,60 @@ def get_metric_correlation_quadrant(df):
     }
     quadrant['Depression'] = quadrant['Depression'].map(depression_mapping)
 
-    return quadrant[['CGPA', 'Study Satisfaction', 'Sleep Duration', 'Dietary Habits', 'Depression']].corr(method='pearson').round(2)
+    quadrant['Study Satisfaction'] = pd.to_numeric(quadrant['Study Satisfaction'], errors='coerce')
+
+    study_bins = [-float('inf'), 2.999, 4, float('inf')]
+    study_labels = [-1, 0, 1]  # -1 for 'Below 3', 0 for '3 to 4', 1 for 'Above 4
+
+    quadrant['Study Satisfaction'] = pd.cut(quadrant['Study Satisfaction'], bins=study_bins, labels=study_labels)
+
+    quadrant['CGPA'] = pd.to_numeric(quadrant['CGPA'], errors='coerce')
+
+    bins = [-float('inf'), 5.999, 8, float('inf')]
+    labels = [-1, 0, 1]  # -1 for 'Below 6', 0 for '6 to 8', 1 for 'Above 8'
+    
+    quadrant['CGPA'] = pd.cut(quadrant['CGPA'], bins=bins, labels=labels)
+
+    quadrant['CGPA'] = quadrant['CGPA'].astype(int)
+
+    quadrant['Have you ever had suicidal thoughts ?'] = quadrant['Have you ever had suicidal thoughts ?'].map(depression_mapping)
+
+    return quadrant[['CGPA', 'Study Satisfaction', 'Sleep Duration', 'Dietary Habits', 'Depression', 'Have you ever had suicidal thoughts ?']].corr(method='pearson').round(2)
+
+
+def get_worker_dataframe():
+    """ Only evaluate workers, gathering categorical data and numerical data that is relevant for workers. """
+    df = gather_data()
+
+    worker_dataframe = df[
+        (df['Working Professional or Student'] == 'Working Professional')
+    ]
+
+    worker_dataframe.drop(columns=[
+        'CGPA', 'Study Satisfaction', 'Working Professional or Student', 'City', 'Name'
+    ], inplace=True, errors='ignore')
+
+    return worker_dataframe
+
+
+def get_worker_metrics_dataframe(df):
+    """ Gather metrics data for workers, such as Work Pressure, Job Satisfaction and Financial Stress distribution. """
+    # Calculate work pressure distribution
+    work_pressure_distribution = df['Work Pressure'].value_counts().reset_index()
+    work_pressure_distribution.columns = ['Work Pressure', 'Count']
+    work_pressure_distribution = work_pressure_distribution.sort_values(by='Count', ascending=False)
+
+    # Calculate job satisfaction distribution
+    job_satisfaction_distribution = df['Job Satisfaction'].value_counts().reset_index()
+    job_satisfaction_distribution.columns = ['Job Satisfaction', 'Count']
+    job_satisfaction_distribution = job_satisfaction_distribution.sort_values(by='Count', ascending=False)
+
+    # Calculate financial stress distribution
+    financial_stress_distribution = df['Financial Stress'].value_counts().reset_index()
+    financial_stress_distribution.columns = ['Financial Stress', 'Count']
+    financial_stress_distribution = financial_stress_distribution.sort_values(by='Count', ascending=False)
+
+    return work_pressure_distribution, job_satisfaction_distribution, financial_stress_distribution
 
 
 def display_dataframe(df):
